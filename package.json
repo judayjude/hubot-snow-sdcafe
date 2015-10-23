@@ -1,0 +1,21 @@
+{
+    "name": "hubot-snow-sdcafe",
+    "version": "1.0.0",
+
+    "description": "Display today's lunch menu at SD NOW's cafe in hubot",
+    "author": "Jude Solis (http://judayju.de/)",
+
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/judayjude/hubot-snow-sdcafe.git"
+    },
+    "homepage": "https://github.com/judayjude/hubot-snow-sdcafe",
+    "bugs": "https://github.com/judayjude/hubot-snow-sdcafe/issues",
+    "license": "MIT",
+
+    "engines": {
+        "node": ">=0.10"
+    },
+
+    "main": "./main.js"
+}
