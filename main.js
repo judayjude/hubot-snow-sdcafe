@@ -26,7 +26,7 @@ module.exports = (function () {
 
     function getThisMonday() {
         var today = new Date();
-        var month = leadingZero(today.getMonth + 1);
+        var month = leadingZero(today.getMonth() + 1);
         var dayOfMonth = today.getDate();
         var daysSinceMonday = today.getDay() - 1;
         var mondayThisWeek = leadingZero(dayOfMonth - daysSinceMonday);
