@@ -23,6 +23,7 @@ module.exports = (function () {
                 console.log("Made request, response status 200");
                 var menuDom = cheerio.load(body);
                 console.log("Cheerio found menu element: " + !!menuDom(".center_text"));
+                console.log("Cheerio extracted text from menu element: " + menuDom(".center_text").text());
                 msg.send(menuDom(".center_text").text());
             }
         });
