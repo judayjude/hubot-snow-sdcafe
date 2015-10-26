@@ -39,9 +39,12 @@ module.exports = (function () {
     }
 
     function getDayOfWorkWeek() {
-        var dayOfWeek = new Date().getDay();
-        var friday = 5;
-        return (dayOfWeek > friday) ? friday : dayOfWeek;
+        var today = new Date();
+        return (function dayOfWorkWeek(date) {
+            var dayOfWeek = new Date().getDay();
+            var friday = 5, monday = 1;
+            return (dayOfWeek > friday || dayOfWeek < monday) ? friday : dayOfWeek;
+        }(today));
     }
 
     return handler;
