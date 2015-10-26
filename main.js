@@ -6,6 +6,7 @@ module.exports = (function () {
     }
 
     function fetchCafeMenu(msg) {
+        console.log("Lunch request detected")
         var thisMonday = getThisMonday();
         var dayOfWorkWeek = getDayOfWorkWeek();
         var menuPath = "9PEU5T~" + thisMonday + "/$file/day" +
@@ -13,11 +14,15 @@ module.exports = (function () {
         var todaysMenuUrl = "http://dining.guckenheimer.com/clients/servicenowsd/fss/fss.nsf/weeklyMenuLaunch/" +
             menuPath;
 
+        console.log("Using menu URL: " + todaysMenuUrl);
         robot.http(todaysMenuUrl).get()(function (err, res, body) {
             if (res.statusCode != 200) {
+                console.log("Made request, but status code is error: " + res.statusCode);
                 msg.send("Not sure what's for lunch, can't get menu :(");
             } else {
+                console.log("Made request, response status 200");
                 var menuDom = cheerio.load(body);
+                console.log("Cheerio found menu element: " + !!menuDom(".center_text"));
                 msg.send(menuDom(".center_text").text());
             }
         });
