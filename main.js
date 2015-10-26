@@ -2,15 +2,10 @@ var cheerio = require('cheerio');
 
 module.exports = (function () {
     function handler(robot) {
-        robot.respond(/what's for lunch/i, sayLunch);
+        robot.respond(/what'?s for lunch/i, fetchCafeMenu);
     }
 
-    function sayLunch(msg) {
-        var cafeMenu = fetchCafeMenu();
-        msg.send(cafeMenu);
-    }
-
-    function fetchCafeMenu() {
+    function fetchCafeMenu(msg) {
         var thisMonday = getThisMonday();
         var dayOfWorkWeek = getDayOfWorkWeek();
         var menuPath = "9PEU5T~" + thisMonday + "/$file/day" +
@@ -18,9 +13,13 @@ module.exports = (function () {
         var todaysMenuUrl = "http://dining.guckenheimer.com/clients/servicenowsd/fss/fss.nsf/weeklyMenuLaunch/" +
             menuPath;
 
-        robot.http(todaysMenuUrl).get(function (err, res, body) {
-            var menuDom = cheerio.load(body);
-            return menuDom(".center_text").text();
+        robot.http(todaysMenuUrl).get()(function (err, res, body) {
+            if (res.statusCode != 200) {
+                msg.send("Not sure what's for lunch, can't get menu :(");
+            } else {
+                var menuDom = cheerio.load(body);
+                msg.send(menuDom(".center_text").text());
+            }
         });
     }
 
@@ -28,7 +27,7 @@ module.exports = (function () {
         var today = new Date();
         var month = leadingZero(today.getMonth() + 1);
         var dayOfMonth = today.getDate();
-        var daysSinceMonday = today.getDay() - 1;
+        var daysSinceMonday = (today.getDay() + 7) % 8;
         var mondayThisWeek = leadingZero(dayOfMonth - daysSinceMonday);
         var year = today.getFullYear();
         return month + "-" + mondayThisWeek + "-" + year;
