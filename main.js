@@ -25,7 +25,7 @@ module.exports = (function () {
                 console.log("Made request, response status 200");
 
                 menuDom = cheerio.load(body);
-                menuHtml = menuDom(".center_text");
+                menuHtml = menuDom("#center_text");
 
                 console.log("Cheerio found menu element: " + !!menuHtml);
                 console.log("Cheerio extracted html from menu element: " + menuHtml.html());
