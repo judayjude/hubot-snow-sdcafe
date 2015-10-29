@@ -32,7 +32,7 @@ module.exports = (function () {
 
                 menuPlainText = htmlToText.fromString(menuHtml.html() + "");
                 console.log("Html-to-text massaged into plain text: " + menuPlainText)
-                msg.send(menuPlainText);
+                msg.send("/quote " + menuPlainText);
             }
         });
     }
