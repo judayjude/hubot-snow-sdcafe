@@ -1,4 +1,5 @@
 var cheerio = require('cheerio');
+var htmlToText = require('html-to-text');
 
 module.exports = (function () {
     function handler(robot) {
@@ -16,15 +17,22 @@ module.exports = (function () {
 
         console.log("Using menu URL: " + todaysMenuUrl);
         robot.http(todaysMenuUrl).get()(function (err, res, body) {
+            var menuDom, menuHtml, menuPlainText;
             if (res.statusCode != 200) {
                 console.log("Made request, but status code is error: " + res.statusCode);
                 msg.send("Not sure what's for lunch, can't get menu :(");
             } else {
                 console.log("Made request, response status 200");
-                var menuDom = cheerio.load(body);
-                console.log("Cheerio found menu element: " + !!menuDom(".center_text"));
-                console.log("Cheerio extracted text from menu element: " + menuDom(".center_text").text());
-                msg.send(menuDom(".center_text").text());
+
+                menuDom = cheerio.load(body);
+                menuHtml = menuDom(".center_text");
+
+                console.log("Cheerio found menu element: " + !!menuHtml);
+                console.log("Cheerio extracted html from menu element: " + menuHtml.html());
+
+                menuPlainText = htmlToText.fromString(menuHtml.html() + "");
+                console.log("Html-to-text massaged into plain text: " + menuPlainText)
+                msg.send(menuPlainText);
             }
         });
     }
