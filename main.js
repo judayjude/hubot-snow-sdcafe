@@ -3,7 +3,20 @@ var htmlToText = require('html-to-text');
 
 module.exports = (function () {
     function handler(robot) {
-        robot.respond(/what'?s for lunch/i, fetchCafeMenu);
+        robot.respond(/what'?s for lunch/i, parseForSpecificVenue);
+        robot.respond(/what'?s (?:(?:on |at )?the|today'?s) cafe/i, fetchCafeMenu);
+        robot.respond(/(?:which|today'?s|what(?:'s)(?: the)?) food ?truck/i, fetchFoodTruck);
+    }
+
+    function parseForSpecificVenue(msg) {
+        var query = msg.match[0] + "";
+        var askingForCafe = (/cafe/i).test(query);
+        var askingForTruck = (/truck/i).test(query);
+        var noSpecificVenue = !askingForCafe && !askingForTruck;
+        if (askingForCafe || noSpecificVenue)
+            fetchCafeMenu(msg);
+        if (askingForTruck || noSpecificVenue)
+            fetchFoodTruck(msg);
     }
 
     function fetchCafeMenu(msg) {
@@ -33,7 +46,7 @@ module.exports = (function () {
                 menuPlainText = formatMenuMarkupAsPlainText(menuHtml.html() + "");
                 menuPlainText = removeBreakFastFromFormattedMenu(menuPlainText);
                 console.log("Html-to-text massaged into plain text: " + menuPlainText);
-                msg.send("/quote " + menuPlainText);
+                msg.send("/quote The Surf & Saddle Cafe is serving:\n\n" + menuPlainText);
             }
         });
     }
@@ -76,6 +89,34 @@ module.exports = (function () {
             }
         }
         return choppedUpMenu.join("\n\n");
+    }
+
+    function fetchFoodTruck(msg) {
+        var foodTruckUrl = "http://sdfoodtrucks.com/";
+        robot.http(foodTruckUrl).get()(function (err, res, body) {
+            var truckListingDom, trucksTodayNode, eastGateTrucks = [];
+            if (res.statusCode != 200) {
+                console.log("Made request, but status code is error: " + res.statusCode);
+                msg.send("Not sure what's for lunch, can't get truck listing :(");
+            } else {
+                console.log("Made request, response status 200");
+                truckListingDom = cheerio.load(body);
+                trucksTodayNode = truckListingDom(".entry-content ul");
+                cheerio("li", trucksTodayNode).each(function () {
+                    var truckListingNode = cheerio(this);
+                    var truckName;
+                    if ((/bridgepoint|4810 eastgate ?mall/i).test(truckListingNode.html() + "")) {
+                        truckName = cheerio("strong", truckListingNode).text();
+                        eastGateTrucks.push(truckName);
+                    }
+                });
+                if (eastGateTrucks.length) {
+                    msg.send("/quote The Eastgate food truck listing today:\n\n" + eastGateTrucks.join("\n"));
+                } else {
+                    msg.send("/quote No trucks listed today at " + foodTruckUrl);
+                }
+            }
+        });
     }
 
     return handler;
