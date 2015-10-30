@@ -9,11 +9,13 @@ module.exports = (function () {
     }
 
     function parseForSpecificVenue(msg) {
-        debug("Lunch request detected");
+        debug("Generic lunch request detected");
         var query = msg.match[0] + "";
+        debug("Parsing for specific venue, from: '" + query + "'");
         var askingForCafe = (/cafe/i).test(query);
         var askingForTruck = (/truck/i).test(query);
         var noSpecificVenue = !askingForCafe && !askingForTruck;
+        debug("asking for cafe: " + askingForCafe + ", asking for truck: " + askingForTruck);
         debug("specific venue requested: " + !!noSpecificVenue);
         if (askingForCafe || noSpecificVenue)
             fetchCafeMenu(msg);
@@ -22,11 +24,11 @@ module.exports = (function () {
     }
     
     function debug(debugMsg) {
-        //console.log(debugMsg);
+        console.log(debugMsg);
     }
 
     function fetchCafeMenu(msg) {
-        debug("CAFE: detected cafe menu request");
+        debug("CAFE: handling cafe menu request");
         var thisMonday = getThisMonday();
         var dayOfWorkWeek = getDayOfWorkWeek();
         var menuPath = "9PEU5T~" + thisMonday + "/$file/day" +
@@ -98,7 +100,7 @@ module.exports = (function () {
     }
 
     function fetchFoodTruck(msg) {
-        debug("FOODTRUCK: detected food truck request");
+        debug("FOODTRUCK: handling food truck request");
         var foodTruckUrl = "http://sdfoodtrucks.com/";
         robot.http(foodTruckUrl).get()(function (err, res, body) {
             var truckListingDom, trucksTodayNode, eastGateTrucks = [];
