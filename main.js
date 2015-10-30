@@ -3,7 +3,7 @@ var htmlToText = require('html-to-text');
 
 module.exports = (function () {
     function handler(robot) {
-        robot.respond(/what'?s for lunch/i, parseForSpecificVenue);
+        robot.respond(/what'?s for lunch.*/i, parseForSpecificVenue);
         robot.respond(/what'?s (?:(?:on |at )?the|today'?s) cafe/i, fetchCafeMenu);
         robot.respond(/(?:which|today'?s|what(?:'s)(?: the)?) food ?truck/i, fetchFoodTruck);
     }
@@ -24,7 +24,7 @@ module.exports = (function () {
     }
     
     function debug(debugMsg) {
-        console.log(debugMsg);
+//        console.log(debugMsg);
     }
 
     function fetchCafeMenu(msg) {
