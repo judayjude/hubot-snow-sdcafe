@@ -9,18 +9,24 @@ module.exports = (function () {
     }
 
     function parseForSpecificVenue(msg) {
+        debug("Lunch request detected");
         var query = msg.match[0] + "";
         var askingForCafe = (/cafe/i).test(query);
         var askingForTruck = (/truck/i).test(query);
         var noSpecificVenue = !askingForCafe && !askingForTruck;
+        debug("specific venue requested: " + !!noSpecificVenue);
         if (askingForCafe || noSpecificVenue)
             fetchCafeMenu(msg);
         if (askingForTruck || noSpecificVenue)
             fetchFoodTruck(msg);
     }
+    
+    function debug(debugMsg) {
+        //console.log(debugMsg);
+    }
 
     function fetchCafeMenu(msg) {
-        console.log("Lunch request detected")
+        debug("CAFE: detected cafe menu request");
         var thisMonday = getThisMonday();
         var dayOfWorkWeek = getDayOfWorkWeek();
         var menuPath = "9PEU5T~" + thisMonday + "/$file/day" +
@@ -28,25 +34,25 @@ module.exports = (function () {
         var todaysMenuUrl = "http://dining.guckenheimer.com/clients/servicenowsd/fss/fss.nsf/weeklyMenuLaunch/" +
             menuPath;
 
-        console.log("Using menu URL: " + todaysMenuUrl);
+        debug("CAFE: Using menu URL: " + todaysMenuUrl);
         robot.http(todaysMenuUrl).get()(function (err, res, body) {
             var menuDom, menuHtml, menuPlainText;
             if (res.statusCode != 200) {
-                console.log("Made request, but status code is error: " + res.statusCode);
-                msg.send("Not sure what's for lunch, can't get menu :(");
+                debug("CAFE: Made request, but status code is error: " + res.statusCode);
+                msg.send("Not sure what's for lunch, can't get cafe menu :(");
             } else {
-                console.log("Made request, response status 200");
+                debug("CAFE: Made request, response status 200");
 
                 menuDom = cheerio.load(body);
                 menuHtml = menuDom("#center_text");
 
-                console.log("Cheerio found menu element: " + !!menuHtml);
-                console.log("Cheerio extracted html from menu element: " + menuHtml.html());
+                debug("CAFE: Cheerio found menu element: " + !!menuHtml);
+                debug("CAFE: Cheerio extracted html from menu element: " + menuHtml.html());
 
                 menuPlainText = formatMenuMarkupAsPlainText(menuHtml.html() + "");
                 menuPlainText = removeBreakFastFromFormattedMenu(menuPlainText);
-                console.log("Html-to-text massaged into plain text: " + menuPlainText);
-                msg.send("/quote The Surf & Saddle Cafe is serving:\n\n" + menuPlainText);
+                debug("CAFE: Html-to-text massaged into plain text: " + menuPlainText);
+                msg.send("/quote The Surf and Saddle Cafe is serving:\n\n" + menuPlainText);
             }
         });
     }
@@ -92,16 +98,17 @@ module.exports = (function () {
     }
 
     function fetchFoodTruck(msg) {
+        debug("FOODTRUCK: detected food truck request");
         var foodTruckUrl = "http://sdfoodtrucks.com/";
         robot.http(foodTruckUrl).get()(function (err, res, body) {
             var truckListingDom, trucksTodayNode, eastGateTrucks = [];
             if (res.statusCode != 200) {
-                console.log("Made request, but status code is error: " + res.statusCode);
+                debug("FOODTRUCK: Made request, but status code is error: " + res.statusCode);
                 msg.send("Not sure what's for lunch, can't get truck listing :(");
             } else {
-                console.log("Made request, response status 200");
+                debug("FOODTRUCK: Made request, response status 200");
                 truckListingDom = cheerio.load(body);
-                trucksTodayNode = truckListingDom(".entry-content ul");
+                trucksTodayNode = truckListingDom(".entry-content ul").first();
                 cheerio("li", trucksTodayNode).each(function () {
                     var truckListingNode = cheerio(this);
                     var truckName;
