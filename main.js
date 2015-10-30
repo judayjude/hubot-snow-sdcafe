@@ -30,8 +30,9 @@ module.exports = (function () {
                 console.log("Cheerio found menu element: " + !!menuHtml);
                 console.log("Cheerio extracted html from menu element: " + menuHtml.html());
 
-                menuPlainText = htmlToText.fromString(menuHtml.html() + "");
-                console.log("Html-to-text massaged into plain text: " + menuPlainText)
+                menuPlainText = formatMenuMarkupAsPlainText(menuHtml.html() + "");
+                menuPlainText = removeBreakFastFromFormattedMenu(menuPlainText);
+                console.log("Html-to-text massaged into plain text: " + menuPlainText);
                 msg.send("/quote " + menuPlainText);
             }
         });
@@ -58,6 +59,23 @@ module.exports = (function () {
             var friday = 5, monday = 1;
             return (dayOfWeek > friday || dayOfWeek < monday) ? friday : dayOfWeek;
         }(today));
+    }
+
+    function formatMenuMarkupAsPlainText(menuHtml) {
+        var rawMenu = htmlToText.fromString(menuHtml, { ignoreImage: true, ignoreHref: true, wordwrap: 40 });
+        return rawMenu.replace(/(?:\n|^)((?:[A-Z]+[ ~]+)+)/g, "\n\n$1\n\n").replace(/(\n+|^)(.[^A-Z])/g, "$1    $2").trim();
+    }
+
+    function removeBreakFastFromFormattedMenu(formattedMenu) {
+        var choppedUpMenu = formattedMenu.split("\n\n");
+        var i, menuPiece;
+        for (i = 0; i < choppedUpMenu.length; i++) {
+            menuPiece = choppedUpMenu[i];
+            if (menuPiece.indexOf("BREAKFAST") == 0) {
+                choppedUpMenu.splice(i, 2);
+            }
+        }
+        return choppedUpMenu.join("\n\n");
     }
 
     return handler;
