@@ -122,7 +122,7 @@ module.exports = (function () {
                 if (eastGateTrucks.length) {
                     msg.send("/quote The Eastgate food truck listing today:\n\n" + eastGateTrucks.join("\n"));
                 } else {
-                    msg.send("/quote No trucks listed today at " + foodTruckUrl);
+                    msg.send("No trucks listed today at " + foodTruckUrl);
                 }
             }
         });
