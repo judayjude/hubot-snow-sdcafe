@@ -114,7 +114,7 @@ module.exports = (function () {
                 cheerio("li", trucksTodayNode).each(function () {
                     var truckListingNode = cheerio(this);
                     var truckName;
-                    if ((/bridgepoint|4810 eastgate ?mall/i).test(truckListingNode.html() + "")) {
+                    if ((/bridgepoint|4[78][0-9]0 eastgate ?mall/i).test(truckListingNode.html() + "")) {
                         truckName = cheerio("strong", truckListingNode).text();
                         eastGateTrucks.push(truckName);
                     }
