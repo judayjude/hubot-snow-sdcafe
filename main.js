@@ -103,7 +103,7 @@ module.exports = (function () {
         debug("FOODTRUCK: handling food truck request");
         var foodTruckUrl = "http://sdfoodtrucks.com/";
         robot.http(foodTruckUrl).get()(function (err, res, body) {
-            var truckListingDom, trucksTodayNode, eastGateTrucks = [];
+            var truckListingDom, trucksTodayNode, dateStampNode, eastGateTrucks = [];
             if (res.statusCode != 200) {
                 debug("FOODTRUCK: Made request, but status code is error: " + res.statusCode);
                 msg.send("Not sure what's for lunch, can't get truck listing :(");
@@ -111,6 +111,7 @@ module.exports = (function () {
                 debug("FOODTRUCK: Made request, response status 200");
                 truckListingDom = cheerio.load(body);
                 trucksTodayNode = truckListingDom(".entry-content ul").first();
+                dateStampNode = truckListingDom(".published").first();
                 cheerio("li", trucksTodayNode).each(function () {
                     var truckListingNode = cheerio(this);
                     var truckName;
@@ -120,7 +121,8 @@ module.exports = (function () {
                     }
                 });
                 if (eastGateTrucks.length) {
-                    msg.send("/quote The Eastgate food truck listing today:\n\n" + eastGateTrucks.join("\n"));
+                    msg.send("/quote The Eastgate food truck listing for " +
+                        dateStampNode.text() + ":\n\n" + eastGateTrucks.join("\n"));
                 } else {
                     msg.send("No trucks listed today at " + foodTruckUrl);
                 }
