@@ -39,11 +39,11 @@ module.exports = (function () {
         debug("CAFE: Using menu URL: " + todaysMenuUrl);
         robot.http(todaysMenuUrl).get()(function (err, res, body) {
             var menuDom, menuHtml, menuPlainText;
-            if (res.statusCode != 200) {
+            if (res.statusCode >= 400) {
                 debug("CAFE: Made request, but status code is error: " + res.statusCode);
                 msg.send("Not sure what's for lunch, can't get cafe menu :(");
             } else {
-                debug("CAFE: Made request, response status 200");
+                debug("CAFE: Made request, response status " + res.statusCode);
 
                 menuDom = cheerio.load(body);
                 menuHtml = menuDom("#center_text");
