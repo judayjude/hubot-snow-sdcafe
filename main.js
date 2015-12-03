@@ -24,7 +24,7 @@ module.exports = (function () {
     }
     
     function debug(debugMsg) {
-//        console.log(debugMsg);
+        console.log(debugMsg);
     }
 
     function fetchCafeMenu(msg) {
