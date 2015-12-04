@@ -24,7 +24,7 @@ module.exports = (function () {
     }
     
     function debug(debugMsg) {
-        console.log(debugMsg);
+//        console.log(debugMsg);
     }
 
     function fetchCafeMenu(msg) {
@@ -61,11 +61,11 @@ module.exports = (function () {
 
     function getThisMonday() {
         var today = new Date();
-        var month = leadingZero(today.getMonth() + 1);
-        var dayOfMonth = today.getDate();
         var daysSinceMonday = (today.getDay() + 7) % 8;
-        var mondayThisWeek = leadingZero(dayOfMonth - daysSinceMonday);
-        var year = today.getFullYear();
+        var thisMonday = new Date(today.getTime() - (daysSinceMonday * 24 * 60 * 60 * 1000));
+        var month = leadingZero(thisMonday.getMonth() + 1);
+        var mondayThisWeek = leadingZero(thisMonday.getDate());
+        var year = thisMonday.getFullYear();
         return month + "-" + mondayThisWeek + "-" + year;
     }
 
